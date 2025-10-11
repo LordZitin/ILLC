@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ILLC - Interactive Language Learning Chatbot</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: #333;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo i {
+            font-size: 2.5rem;
+            color: #fff;
+        }
+        
+        .logo h1 {
+            color: white;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        .logo span {
+            color: #ffd700;
+        }
+        
+        .user-actions a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .user-actions a:hover {
+            color: #ffd700;
+        }
+        
+        .content-area {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            min-height: 70vh;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .floating-home-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            background: #ff6b6b;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .floating-home-btn:hover {
+            transform: scale(1.1);
+            background: #ff5252;
+        }
+        
+        .floating-home-btn i {
+            color: white;
+            font-size: 1.5rem;
+        }
+        
+        .floating-chat-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 70px;
+            height: 70px;
+            background: #4ecdc4;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(78, 205, 196, 0.4);
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .floating-chat-btn:hover {
+            transform: scale(1.1);
+            background: #26a69a;
+        }
+        
+        .floating-chat-btn i {
+            color: white;
+            font-size: 1.8rem;
+        }
+        
+        .chatbot-container {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 380px;
+            height: 500px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            z-index: 999;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .chatbot-header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chatbot-header h3 {
+            margin: 0;
+            font-weight: 600;
+        }
+        
+        .close-chat {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        
+        .chatbot-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            line-height: 1.4;
+        }
+        
+        .user-message {
+            align-self: flex-end;
+            background: #e3f2fd;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .bot-message {
+            align-self: flex-start;
+            background: #f5f5f5;
+            border-bottom-left-radius: 5px;
+        }
+        
+        .chatbot-input {
+            display: flex;
+            padding: 15px;
+            border-top: 1px solid #eee;
+        }
+        
+        .chatbot-input input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 30px;
+            outline: none;
+            font-size: 1rem;
+        }
+        
+        .chatbot-input button {
+            background: #4ecdc4;
+            border: none;
+            color: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            margin-left: 10px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .chatbot-input button:hover {
+            background: #26a69a;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: white;
+            margin-top: 30px;
+        }
+        
+        .welcome-screen {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            text-align: center;
+            animation: fadeIn 1s ease;
+        }
+        
+        .welcome-screen h2 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .welcome-screen p {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #555;
+        }
+        
+        .welcome-screen .university {
+            font-weight: 600;
+            color: #6a11cb;
+        }
+        
+        .welcome-screen .developer {
+            font-style: italic;
+            margin-top: 20px;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            margin-top: 30px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 15px rgba(106, 17, 203, 0.3);
+        }
+        
+        /* Login Page Styles */
+        .login-container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .login-form {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+        
+        .form-group input:focus {
+            border-color: #6a11cb;
+            outline: none;
+        }
+        
+        /* Home Page Styles */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .dashboard-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .dashboard-card i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: #6a11cb;
+        }
+        
+        .dashboard-card h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .dashboard-card p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        /* Placeholder Pages */
+        .page-placeholder {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .page-placeholder i {
+            font-size: 4rem;
+            color: #6a11cb;
+            margin-bottom: 20px;
+        }
+        
+        .page-placeholder h2 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .page-placeholder p {
+            font-size: 1.1rem;
+            color: #666;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-home-btn" id="homeBtn">
+        <i class="fas fa-home"></i>
+    </div>
+    
+    <div class="floating-chat-btn" id="chatBtn">
+        <i class="fas fa-comments"></i>
+    </div>
+    
+    <div class="chatbot-container" id="chatbot">
+        <div class="chatbot-header">
+            <h3>Language Learning Assistant</h3>
+            <button class="close-chat" id="closeChat"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="chatbot-messages" id="chatMessages">
+            <div class="message bot-message">
+                Hello! I'm your language learning assistant. How can I help you practice today?
+            </div>
+        </div>
+        <div class="chatbot-input">
+            <input type="text" id="userInput" placeholder="Type your message here...">
+            <button id="sendMessage"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-language"></i>
+                <h1>ILLC - <span>Interactive Language Learning</span></h1>
+            </div>
+            <div class="user-actions">
+                <a href="#" id="loginLink">Login</a>
+                <a href="#" id="signupLink">Sign Up</a>
+            </div>
+        </header>
+        
+        <div class="content-area" id="contentArea">
+            <!-- Content will be dynamically loaded here -->
+        </div>
+        
+        <footer>
+            <p>&copy; 2023 ILLC - Interactive Language Learning Chatbot | Developed by PKB | ABC University</p>
+        </footer>
+    </div>
+
+    <script>
+        // Page navigation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load welcome page initially
+            loadPage('welcome');
+            
+            // Home button event
+            document.getElementById('homeBtn').addEventListener('click', function() {
+                loadPage('home');
+            });
+            
+            // Chat button events
+            document.getElementById('chatBtn').addEventListener('click', function() {
+                document.getElementById('chatbot').style.display = 'flex';
+            });
+            
+            document.getElementById('closeChat').addEventListener('click', function() {
+                document.getElementById('chatbot').style.display = 'none';
+            });
+            
+            // Send message in chatbot
+            document.getElementById('sendMessage').addEventListener('click', sendMessage);
+            document.getElementById('userInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+            
+            // Login link
+            document.getElementById('loginLink').addEventListener('click', function(e) {
+                e.preventDefault();
+                loadPage('login');
+            });
+        });
+        
+        function loadPage(page) {
+            const contentArea = document.getElementById('contentArea');
+            
+            switch(page) {
+                case 'welcome':
+                    contentArea.innerHTML = `
+                        <div class="welcome-screen">
+                            <h2>Welcome to ILLC</h2>
+                            <p>- The Interactive Language Learning Webapp -</p>
+                            <p class="developer">Developed by PKB</p>
+                            <p>as a Project for MCA course in</p>
+                            <p class="university">ABC University</p>
+                            <button class="btn" id="continueBtn">Click to Continue</button>
+                        </div>
+                    `;
+                    
+                    document.getElementById('continueBtn').addEventListener('click', function() {
+                        loadPage('login');
+                    });
+                    break;
+                    
+                case 'login':
+                    contentArea.innerHTML = `
+                        <div class="login-container">
+                            <div class="login-form">
+                                <h2 style="text-align: center; margin-bottom: 30px; color: #333;">Login to ILLC</h2>
+                                <div class="form-group">
+                                    <label for="email">Email</label>
+                                    <input type="email" id="email" placeholder="Enter your email">
+                                </div>
+                                <div class="form-group">
+                                    <label for="password">Password</label>
+                                    <input type="password" id="password" placeholder="Enter your password">
+                                </div>
+                                <button class="btn" style="width: 100%;" id="signinBtn">Sign In</button>
+                                <p style="text-align: center; margin-top: 20px; color: #666;">
+                                    Don't have an account? <a href="#" style="color: #6a11cb;" id="signupLink2">Sign Up</a>
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.getElementById('signinBtn').addEventListener('click', function() {
+                        loadPage('home');
+                    });
+                    
+                    document.getElementById('signupLink2').addEventListener('click', function(e) {
+                        e.preventDefault();
+                        // For now, just redirect to home
+                        loadPage('home');
+                    });
+                    break;
+                    
+                case 'home':
+                    contentArea.innerHTML = `
+                        <div style="text-align: center; margin-bottom: 30px;">
+                            <h2 style="color: #333; margin-bottom: 10px;">Language Learning Dashboard</h2>
+                            <p style="color: #666;">Choose an activity to improve your language skills</p>
+                        </div>
+                        <div class="dashboard">
+                            <div class="dashboard-card" id="learnCard">
+                                <i class="fas fa-book-open"></i>
+                                <h3>Learn</h3>
+                                <p>Explore grammar rules, vocabulary, and language concepts</p>
+                            </div>
+                            <div class="dashboard-card" id="practiceCard">
+                                <i class="fas fa-comments"></i>
+                                <h3>Practice</h3>
+                                <p>Engage in conversational practice with our AI assistant</p>
+                            </div>
+                            <div class="dashboard-card" id="progressCard">
+                                <i class="fas fa-chart-line"></i>
+                                <h3>Progress</h3>
+                                <p>Track your learning journey and see your improvements</p>
+                            </div>
+                            <div class="dashboard-card" id="adminCard">
+                                <i class="fas fa-cog"></i>
+                                <h3>Admin</h3>
+                                <p>Manage your account and learning preferences</p>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.getElementById('learnCard').addEventListener('click', function() {
+                        loadPage('learn');
+                    });
+                    
+                    document.getElementById('practiceCard').addEventListener('click', function() {
+                        loadPage('practice');
+                    });
+                    
+                    document.getElementById('progressCard').addEventListener('click', function() {
+                        loadPage('progress');
+                    });
+                    
+                    document.getElementById('adminCard').addEventListener('click', function() {
+                        loadPage('admin');
+                    });
+                    break;
+                    
+                case 'learn':
+                    contentArea.innerHTML = `
+                        <div class="page-placeholder">
+                            <i class="fas fa-book-open"></i>
+                            <h2>Learn Language</h2>
+                            <p>This section will contain interactive lessons, grammar explanations, vocabulary builders, and language learning resources.</p>
+                            <button class="btn" style="margin-top: 30px;" onclick="loadPage('home')">Back to Dashboard</button>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'practice':
+                    contentArea.innerHTML = `
+                        <div class="page-placeholder">
+                            <i class="fas fa-comments"></i>
+                            <h2>Practice Conversation</h2>
+                            <p>This section will provide interactive conversation practice with our AI language model to help improve your speaking and comprehension skills.</p>
+                            <button class="btn" style="margin-top: 30px;" onclick="loadPage('home')">Back to Dashboard</button>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'progress':
+                    contentArea.innerHTML = `
+                        <div class="page-placeholder">
+                            <i class="fas fa-chart-line"></i>
+                            <h2>Your Progress</h2>
+                            <p>This section will display your learning statistics, achievements, and progress tracking for different language skills.</p>
+                            <button class="btn" style="margin-top: 30px;" onclick="loadPage('home')">Back to Dashboard</button>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'admin':
+                    contentArea.innerHTML = `
+                        <div class="page-placeholder">
+                            <i class="fas fa-cog"></i>
+                            <h2>Admin Settings</h2>
+                            <p>This section will allow you to manage your account settings, learning preferences, and customize your language learning experience.</p>
+                            <button class="btn" style="margin-top: 30px;" onclick="loadPage('home')">Back to Dashboard</button>
+                        </div>
+                    `;
+                    break;
+            }
+        }
+        
+        // Simple chatbot functionality
+        function sendMessage() {
+            const userInput = document.getElementById('userInput');
+            const message = userInput.value.trim();
+            
+            if (message === '') return;
+            
+            // Add user message to chat
+            const messagesContainer = document.getElementById('chatMessages');
+            const userMessageElement = document.createElement('div');
+            userMessageElement.classList.add('message', 'user-message');
+            userMessageElement.textContent = message;
+            messagesContainer.appendChild(userMessageElement);
+            
+            // Clear input
+            userInput.value = '';
+            
+            // Simulate bot response
+            setTimeout(() => {
+                const botResponse = generateBotResponse(message);
+                const botMessageElement = document.createElement('div');
+                botMessageElement.classList.add('message', 'bot-message');
+                botMessageElement.textContent = botResponse;
+                messagesContainer.appendChild(botMessageElement);
+                
+                // Scroll to bottom
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }, 1000);
+            
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        function generateBotResponse(userMessage) {
+            const lowerMessage = userMessage.toLowerCase();
+            
+            // Simple rule-based responses for language learning
+            if (lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
+                return "Hello! I'm here to help you practice your language skills. What would you like to work on today?";
+            } else if (lowerMessage.includes('grammar')) {
+                return "Grammar is essential for language learning. Would you like to practice verb tenses, sentence structure, or something specific?";
+            } else if (lowerMessage.includes('vocabulary')) {
+                return "Expanding your vocabulary is a great way to improve! Let's practice some new words. What topic are you interested in?";
+            } else if (lowerMessage.includes('practice') || lowerMessage.includes('speak')) {
+                return "Let's practice conversation! Try forming a sentence about your day, and I'll help you improve it.";
+            } else if (lowerMessage.includes('thank')) {
+                return "You're welcome! I'm happy to help with your language learning journey.";
+            } else if (lowerMessage.includes('how are you')) {
+                return "I'm functioning well, thank you! Ready to help you with your language practice. How about you?";
+            } else if (lowerMessage.includes('bye') || lowerMessage.includes('goodbye')) {
+                return "Goodbye! Don't forget to practice regularly. Consistency is key to language learning success!";
+            } else {
+                // Default responses for language practice
+                const responses = [
+                    "That's interesting! Can you try rephrasing that using different vocabulary?",
+                    "Good attempt! Let me help you improve that sentence structure.",
+                    "I understand what you're saying. Here's a more natural way to express that idea...",
+                    "That's a good point! In this language, we might say it like this...",
+                    "Nice try! Remember to pay attention to verb conjugation in your sentences.",
+                    "I see you're practicing! Would you like me to correct any grammar mistakes in that sentence?",
+                    "Great effort! Let's work on making your sentences more fluent and natural."
+                ];
+                return responses[Math.floor(Math.random() * responses.length)];
+            }
+        }
+    </script>
+</body>
+</html>
