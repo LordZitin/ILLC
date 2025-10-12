@@ -1,40 +1,39 @@
-const http = require('http');
-const fs = require('fs');
+const express = require('express');
 const path = require('path');
+const fs = require('fs').promises;
+const app = express();
+const port = process.env.PORT || 3000;
 
-const server = http.createServer((req, res) => {
-    // Serve the HTML file
-    if (req.url === '/' || req.url === '/index.html') {
-        fs.readFile(path.join(__dirname, 'index.html'), (err, data) => {
-            if (err) {
-                res.writeHead(500);
-                res.end('Error loading index.html');
-                return;
-            }
-            res.writeHead(200, { 'Content-Type': 'text/html' });
-            res.end(data);
-        });
-    } 
-    // Serve data.json if needed
-    else if (req.url === '/data.json') {
-        fs.readFile(path.join(__dirname, 'data.json'), (err, data) => {
-            if (err) {
-                res.writeHead(404);
-                res.end('File not found');
-                return;
-            }
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(data);
-        });
-    }
-    // Handle other requests
-    else {
-        res.writeHead(404);
-        res.end('Not found');
+// Middleware to serve static files (HTML, CSS, JS, etc.)
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Middleware to parse JSON bodies
+app.use(express.json());
+
+// Serve the main HTML file
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Endpoint to serve flashcard and practice data
+app.get('/data.json', async (req, res) => {
+    try {
+        const dataPath = path.join(__dirname, 'data.json');
+        const data = await fs.readFile(dataPath, 'utf8');
+        res.json(JSON.parse(data));
+    } catch (error) {
+        console.error('Error reading data.json:', error);
+        res.status(500).json({ error: 'Failed to load data' });
     }
 });
 
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+// Basic error handling middleware
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Something went wrong!');
+});
+
+// Start the server
+app.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}`);
 });
