@@ -642,8 +642,8 @@
             modelLoading = true;
             try {
                 addMessage("Loading AI model...", 'bot', true);
-                const { pipeline } = await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.6.0/dist/transformers.min.js');
-                chatPipe = await pipeline('text2text-generation', 'Xenova/janus-1.3B');
+                import { pipeline } from '@huggingface/transformers';
+                chatPipe = await pipeline('any-to-any', 'onnx-community/Janus-1.3B-ONNX');
                 removeLoadingMessage();
                 addMessage("AI model loaded! How can I assist you with language learning today?", 'bot');
             } catch (error) {
@@ -779,9 +779,11 @@
                                     <label for="learn-cat-select">Category</label>
                                     <select id="learn-cat-select">
                                         <option value="">Select Category</option>
-                                        <option value="basics">Basics</option>
-                                        <option value="food">Food</option>
-                                        <option value="travel">Travel</option>
+                                        <option value="Numbers">Numbers</option>
+                                        <option value="Places">Places</option>
+                                        <option value="People">People</option>
+                                        <option value="Items">Items</option>
+                                        <option value="Verbs">Verbs</option>
                                     </select>
                                 </div>
                             </div>
@@ -845,18 +847,23 @@
                                     <label for="practice-lang-select">Language</label>
                                     <select id="practice-lang-select">
                                         <option value="">Select Language</option>
-                                        <option value="english">English</option>
-                                        <option value="spanish">Spanish</option>
-                                        <option value="french">French</option>
+                                        <option value="hindi">hindi</option>
+                                        <option value="bengali">bengali</option>
+                                        <option value="tamil">tamil</option>
+                                        <option value="french">french</option>
+                                        <option value="spanish">spanish</option>
+                                        <option value="russian">russian</option>
                                     </select>
                                 </div>
                                 <div class="filter-group">
                                     <label for="practice-cat-select">Category</label>
                                     <select id="practice-cat-select">
                                         <option value="">Select Category</option>
-                                        <option value="basics">Basics</option>
-                                        <option value="food">Food</option>
-                                        <option value="travel">Travel</option>
+                                        <option value="Numbers">Numbers</option>
+                                        <option value="Places">Places</option>
+                                        <option value="People">People</option>
+                                        <option value="Items">Items</option>
+                                        <option value="Verbs">Verbs</option>
                                     </select>
                                 </div>
                                 <div class="filter-group">
@@ -894,11 +901,10 @@
 
         // Flashcard functions
         function loadFlashcards() {
-            const lang1 = document.getElementById('learn-lang1-select').value;
-            const lang2 = document.getElementById('learn-lang2-select').value;
+            const languages = document.getElementById('learn-languages-select').value;
             const category = document.getElementById('learn-cat-select').value;
             
-            if (!lang1 || !lang2 || !category) {
+            if (!languages || !category) {
                 return;
             }
             
@@ -906,7 +912,7 @@
             fetch('data.json')
                 .then(response => response.json())
                 .then(data => {
-                    const languageData = data[lang1] && data[lang1][category] ? data[lang1][category] : [];
+                    const languageData = data[languages][category] ? data[languages][category] : [];
                     currentFlashcards = languageData.map(item => {
                         const parts = item.split(' ');
                         return {
@@ -980,7 +986,7 @@
             const type = document.getElementById('practice-type-select').value;
             const practiceArea = document.getElementById('practice-area');
 
-            if (!language || !category || !type) {
+            if (!languages || !category || !type) {
                 practiceArea.innerHTML = '<p style="color: #721c24;">Please select all options</p>';
                 return;
             }
@@ -989,7 +995,7 @@
             fetch('data.json')
                 .then(response => response.json())
                 .then(data => {
-                    const languageData = data[language] && data[language][category] ? data[language][category] : [];
+                    const languageData = data[languages][category] ? data[languages][category] : [];
                     
                     if (languageData.length === 0) {
                         practiceArea.innerHTML = '<p style="color: #721c24;">No data available for selected options</p>';
@@ -1165,8 +1171,8 @@
                 addMessage("Thinking...", 'bot', true);
                 try {
                     const response = await chatPipe(message, {
-                        max_new_tokens: 100,
-                        temperature: 0.7
+                        max_new_tokens: 50,
+                        temperature: 0.1
                     });
                     removeLoadingMessage();
                     addMessage(response[0].generated_text, 'bot');
