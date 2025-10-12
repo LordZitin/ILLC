@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.0/dist/transformers.min.js"></script>
     <style>
-        /* Your existing CSS styles remain the same */
         * {
             margin: 0;
             padding: 0;
@@ -28,12 +27,530 @@
             padding: 20px;
         }
         
-        /* ... (all your existing CSS styles) ... */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
         
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo i {
+            font-size: 2.5rem;
+            color: #fff;
+        }
+        
+        .logo h1 {
+            color: white;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        .logo span {
+            color: #ffd700;
+        }
+        
+        .user-actions {
+            color: white;
+            font-weight: 500;
+        }
+        
+        .content-area {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            min-height: 70vh;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .floating-home-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            background: #ff6b6b;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .floating-home-btn:hover {
+            transform: scale(1.1);
+            background: #ff5252;
+        }
+        
+        .floating-home-btn i {
+            color: white;
+            font-size: 1.5rem;
+        }
+        
+        .floating-chat-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 70px;
+            height: 70px;
+            background: #4ecdc4;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(78, 205, 196, 0.4);
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .floating-chat-btn:hover {
+            transform: scale(1.1);
+            background: #26a69a;
+        }
+        
+        .floating-chat-btn i {
+            color: white;
+            font-size: 1.8rem;
+        }
+        
+        .chatbot-container {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 380px;
+            height: 500px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            z-index: 999;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .chatbot-header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chatbot-header h3 {
+            margin: 0;
+            font-weight: 600;
+        }
+        
+        .close-chat {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        
+        .chatbot-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            line-height: 1.4;
+        }
+        
+        .user-message {
+            align-self: flex-end;
+            background: #e3f2fd;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .bot-message {
+            align-self: flex-start;
+            background: #f5f5f5;
+            border-bottom-left-radius: 5px;
+        }
+        
+        .chatbot-input {
+            display: flex;
+            padding: 15px;
+            border-top: 1px solid #eee;
+        }
+        
+        .chatbot-input input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 30px;
+            outline: none;
+            font-size: 1rem;
+        }
+        
+        .chatbot-input button {
+            background: #4ecdc4;
+            border: none;
+            color: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            margin-left: 10px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .chatbot-input button:hover {
+            background: #26a69a;
+        }
+        
+        .loading {
+            opacity: 0.7;
+            font-style: italic;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: white;
+            margin-top: 30px;
+        }
+        
+        .welcome-screen {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            text-align: center;
+            animation: fadeIn 1s ease;
+            cursor: pointer;
+        }
+        
+        .welcome-screen h2 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .welcome-screen p {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #555;
+        }
+        
+        .welcome-screen .university {
+            font-weight: 600;
+            color: #6a11cb;
+        }
+        
+        .welcome-screen .developer {
+            font-style: italic;
+            margin-top: 20px;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 15px rgba(106, 17, 203, 0.3);
+        }
+        
+        /* Home Page Styles */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .dashboard-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .dashboard-card i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: #6a11cb;
+        }
+        
+        .dashboard-card h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .dashboard-card p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        /* Practice Page Styles */
+        .practice-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .filter-group label {
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .filter-group select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        .practice-area {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .question {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #333;
+        }
+        
+        .option-button {
+            display: block;
+            width: 100%;
+            max-width: 400px;
+            padding: 15px;
+            margin: 10px 0;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .option-button:hover {
+            background: #e9ecef;
+            border-color: #6a11cb;
+        }
+        
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 500;
+            display: none;
+        }
+        
+        .correct {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        /* Learn Page Styles */
+        .learn-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .flashcard-container {
+            perspective: 1000px;
+            margin: 30px 0;
+        }
+        
+        .flashcard {
+            width: 100%;
+            height: 300px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+        }
+        
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+        
+        .flashcard-front, .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            background: white;
+        }
+        
+        .flashcard-back {
+            transform: rotateY(180deg);
+            background: #f8f9fa;
+        }
+        
+        .flashcard-word {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #6a11cb;
+            margin-bottom: 10px;
+        }
+        
+        .flashcard-pronunciation {
+            font-size: 1.2rem;
+            color: #666;
+            font-style: italic;
+            margin-bottom: 20px;
+        }
+        
+        .flashcard-meaning {
+            font-size: 1.5rem;
+            color: #333;
+            text-align: center;
+        }
+        
+        .navigation-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .progress-container {
+            margin: 20px 0;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            transition: width 0.3s ease;
+        }
+        
+        .progress-text {
+            text-align: center;
+            margin-top: 10px;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        /* Placeholder Pages */
+        .page-placeholder {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .page-placeholder i {
+            font-size: 4rem;
+            color: #6a11cb;
+            margin-bottom: 20px;
+        }
+        
+        .page-placeholder h2 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .page-placeholder p {
+            font-size: 1.1rem;
+            color: #666;
+            max-width: 600px;
+            line-height: 1.6;
+        }
     </style>
 </head>
 <body>
-    <!-- Your existing HTML structure remains the same -->
     <div class="floating-home-btn" id="homeBtn">
         <i class="fas fa-home"></i>
     </div>
@@ -85,7 +602,7 @@
         let currentFlashcardIndex = 0;
         let currentFlashcards = [];
         let exploredCards = new Set();
-        let chatPipeline = null;
+        let chatPipe = null;
         let modelLoading = false;
 
         // Initialize the app
@@ -118,31 +635,21 @@
             });
         });
 
-        // Initialize the chat model with DialoGPT-small
+        // Initialize the chat model
         async function initializeChatModel() {
-            if (chatPipeline || modelLoading) return;
+            if (chatPipe || modelLoading) return;
             
             modelLoading = true;
             try {
-                addMessage("Loading AI assistant...", 'bot', true);
-                
-                // Using DialoGPT-small - lightweight conversational model
-                const { pipeline } = transformers;
-                chatPipeline = await pipeline(
-                    'text-generation',
-                    'microsoft/DialoGPT-small',
-                    {
-                        device: 'cpu' // Force CPU to reduce memory usage
-                    }
-                );
-                
+                addMessage("Loading AI model...", 'bot', true);
+                const { pipeline } = await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.6.0/dist/transformers.min.js');
+                chatPipe = await pipeline('text2text-generation', 'Xenova/janus-1.3B');
                 removeLoadingMessage();
-                addMessage("Hello! I'm your language learning assistant. I can help you practice conversations, explain grammar, or assist with vocabulary. What would you like to work on today?", 'bot');
+                addMessage("AI model loaded! How can I assist you with language learning today?", 'bot');
             } catch (error) {
                 console.error('Error loading model:', error);
                 removeLoadingMessage();
-                // Fallback to rule-based responses if model fails to load
-                addMessage("I'm here to help with your language learning! I can assist with vocabulary practice, grammar questions, or general language learning tips. What would you like to practice?", 'bot');
+                addMessage("I'm here to help with your language learning! What would you like to practice today?", 'bot');
             }
             modelLoading = false;
         }
@@ -654,42 +1161,22 @@
             addMessage(message, 'user');
             userInput.value = '';
 
-            if (chatPipeline) {
+            if (chatPipe) {
                 addMessage("Thinking...", 'bot', true);
                 try {
-                    // Use DialoGPT for conversational responses
-                    const response = await chatPipeline(
-                        message,
-                        {
-                            max_new_tokens: 100,
-                            temperature: 0.7,
-                            do_sample: true,
-                            pad_token_id: 50256
-                        }
-                    );
-                    
+                    const response = await chatPipe(message, {
+                        max_new_tokens: 100,
+                        temperature: 0.7
+                    });
                     removeLoadingMessage();
-                    const botResponse = response[0].generated_text;
-                    addMessage(botResponse, 'bot');
+                    addMessage(response[0].generated_text, 'bot');
                 } catch (error) {
                     console.error('Error generating response:', error);
                     removeLoadingMessage();
-                    addMessage("I'm having trouble processing that. How can I help you with language learning?", 'bot');
+                    addMessage("I encountered an error. How can I help you with language learning?", 'bot');
                 }
             } else {
-                // Fallback responses if model isn't loaded
-                const lowerMessage = message.toLowerCase();
-                let response = "I'm here to help with language learning!";
-                
-                if (lowerMessage.includes('translate') || lowerMessage.includes('translation')) {
-                    response = "For translations, try using the practice section with your data.json file. I can help explain language concepts!";
-                } else if (lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
-                    response = "Hello! I'm your language learning assistant. How can I help you practice today?";
-                } else if (lowerMessage.includes('practice') || lowerMessage.includes('exercise')) {
-                    response = "Great! I can help you practice. Try the practice section for interactive exercises, or ask me language questions!";
-                }
-                
-                addMessage(response, 'bot');
+                addMessage("I'm still loading. Please try again in a moment.", 'bot');
             }
         }
 
